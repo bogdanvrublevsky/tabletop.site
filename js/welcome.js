@@ -203,8 +203,9 @@ class CustomSelect {
     this.close();
 
     if (document.location.pathname.startsWith(`/${value}/`)) return;
-    // Redirect to the same path with the new language prefix
-    window.location.href = `/${value}/${document.location.pathname.substring(4)}`;
+    window.location.href = `/${value}${document.location.href
+      .substring(document.location.origin.length)
+      .substring(3)}`;
   }
 }
 

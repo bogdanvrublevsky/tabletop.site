@@ -10,7 +10,7 @@
       (function () {
         var a = navigator.language || navigator.userLanguage;
         window.location.href =
-          "/" + (a.toLowerCase().startsWith("ru") ? "ru" : "en") + "/";
+          window.location.href + (a.toLowerCase().startsWith("ru") ? "ru" : "en");
       })();
     </script>
   </body>
