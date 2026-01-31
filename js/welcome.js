@@ -202,12 +202,9 @@ class CustomSelect {
     option.classList.add("selected");
     this.close();
 
-    const event = new Event("change", { bubbles: true });
-    this.hiddenSelect.dispatchEvent(event);
-
     if (document.location.pathname.startsWith(`/${value}/`)) return;
-    window.location.href =
-      `/${value}/` + document.location.pathname.split("/").slice(2).join("/");
+    // Redirect to the same path with the new language prefix
+    window.location.href = `/${value}/${document.location.pathname.substring(4)}`;
   }
 }
 
@@ -252,19 +249,5 @@ document.addEventListener("DOMContentLoaded", () => {
     copyline.insertBefore(select, copyline.children[0]);
 
     let customSelect = new CustomSelect(select);
-
-    let hiddenSelect = select.querySelector("select");
-    hiddenSelect.addEventListener("change", (e) => {
-      let newLang = e.target.value;
-
-      let pathParts = window.location.pathname.split("/").filter((p) => p);
-      let basePath = "";
-
-      if (pathParts.length > 0 && !languages[pathParts[0]]) {
-        basePath = "/" + pathParts[0];
-      }
-
-      window.location.href = basePath + "/" + newLang + "/";
-    });
   }
 });

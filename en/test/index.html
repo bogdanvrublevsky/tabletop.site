@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../../css/welcome.css" />
+  </head>
+  <body style="visibility: visible; opacity: 1">
+    <script src="../../js/welcome.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        let languages = {
+          en: "English",
+          ru: "Русский",
+        };
+
+        let pathParts = document.location.pathname.split("/").filter((p) => p);
+        let currentLang =
+          pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2] || "en";
+
+        if (!languages[currentLang]) {
+          currentLang = pathParts.find((p) => p === "en" || p === "ru") || "en";
+        }
+
+        let select = document.createElement("div");
+        select.className = "select-custom";
+        select.innerHTML = `
+          <button type="button" class="select-trigger">
+              <span class="select-value">${languages[currentLang]}</span>
+              <svg class="select-arrow" width="12" height="8" viewBox="0 0 12 8">
+              <path fill="currentColor" d="M6 8L0 2l1.4-1.4L6 5.2 10.6.6 12 2z"/>
+              </svg>
+          </button>
+          <div class="select-dropdown">
+              <button type="button" class="select-option" data-value="en">English</button>
+              <button type="button" class="select-option" data-value="ru">Русский</button>
+          </div>
+          <select name="language" style="display: none;">
+              <option value="en" ${
+                currentLang === "en" ? "selected" : ""
+              }>English</option>
+              <option value="ru" ${
+                currentLang === "ru" ? "selected" : ""
+              }>Русский</option>
+          </select>
+          `;
+        document.body.appendChild(select);
+
+        let customSelect = new CustomSelect(select);
+      });
+    </script>
+  </body>
+</html>
