@@ -33,7 +33,6 @@ class LetterRain {
       span.style.color = this.color;
       span.style.fontSize =
         Math.floor(Math.random() * (this.sizeMax - this.sizeMin) + this.sizeMin) + "px";
-      // get this.element width and height
       const rect = this.element.getBoundingClientRect();
       span.style.left = Math.random() * rect.width + "px";
       span.style.top = Math.random() * rect.height + "px";
@@ -144,13 +143,11 @@ class CustomSelect {
   }
 
   init() {
-    // Клик на триггер
     this.trigger.addEventListener("click", (e) => {
       e.stopPropagation();
       this.toggle();
     });
 
-    // Клик на опцию
     this.options.forEach((option) => {
       option.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -158,12 +155,10 @@ class CustomSelect {
       });
     });
 
-    // Закрытие при клике вне
     document.addEventListener("click", () => {
       this.close();
     });
 
-    // Keyboard navigation
     this.trigger.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -173,7 +168,6 @@ class CustomSelect {
       }
     });
 
-    // Отмечаем выбранную опцию
     const selectedValue = this.hiddenSelect.value;
     this.options.forEach((opt) => {
       if (opt.dataset.value === selectedValue) {
@@ -201,24 +195,15 @@ class CustomSelect {
     const value = option.dataset.value;
     const text = option.textContent;
 
-    // Обновляем визуал
     this.valueDisplay.textContent = text;
-
-    // Обновляем скрытый select
     this.hiddenSelect.value = value;
 
-    // Обновляем selected класс
     this.options.forEach((opt) => opt.classList.remove("selected"));
     option.classList.add("selected");
-
-    // Закрываем
     this.close();
 
-    // Триггерим change event
     const event = new Event("change", { bubbles: true });
     this.hiddenSelect.dispatchEvent(event);
-
-    // Роутим на нужную страницу
 
     if (document.location.pathname.startsWith(`/${value}/`)) return;
     window.location.href =
@@ -234,8 +219,13 @@ document.addEventListener("DOMContentLoaded", () => {
       ru: "Русский",
     };
 
-    // Исправлено: берем индекс [1] вместо [0]
-    let currentLang = document.location.pathname.split("/")[1] || "en";
+    let pathParts = document.location.pathname.split("/").filter((p) => p);
+    let currentLang =
+      pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2] || "en";
+
+    if (!languages[currentLang]) {
+      currentLang = pathParts.find((p) => p === "en" || p === "ru") || "en";
+    }
 
     let select = document.createElement("div");
     select.className = "select-custom";
@@ -250,7 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
               <button type="button" class="select-option" data-value="en">English</button>
               <button type="button" class="select-option" data-value="ru">Русский</button>
           </div>
-          <!-- Скрытый select для форм -->
           <select name="language" style="display: none;">
               <option value="en" ${
                 currentLang === "en" ? "selected" : ""
@@ -261,6 +250,21 @@ document.addEventListener("DOMContentLoaded", () => {
           </select>
           `;
     copyline.insertBefore(select, copyline.children[0]);
-    new CustomSelect(select);
+
+    let customSelect = new CustomSelect(select);
+
+    let hiddenSelect = select.querySelector("select");
+    hiddenSelect.addEventListener("change", (e) => {
+      let newLang = e.target.value;
+
+      let pathParts = window.location.pathname.split("/").filter((p) => p);
+      let basePath = "";
+
+      if (pathParts.length > 0 && !languages[pathParts[0]]) {
+        basePath = "/" + pathParts[0];
+      }
+
+      window.location.href = basePath + "/" + newLang + "/";
+    });
   }
 });
