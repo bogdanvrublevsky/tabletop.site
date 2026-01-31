@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soon...</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Runic&display=swap" />
+    <link rel="stylesheet" href="../css/welcome.css" />
+  </head>
+
+  <body>
+    <h1>Making</h1>
+    <h2 id="text">tabletop games easier... or NOT?</h2>
+    <div class="copyline">
+      <span>| &copy; 2026 Tabletop Tools</span>
+    </div>
+
+    <script src="../js/welcome.js"></script>
+    <script>
+      const phrases = [
+        "tabletop games easier... or NOT?",
+        "everything you need at the table",
+        "prep faster, and run smoother",
+        "the GM's workload end here",
+        "rules fade and play remains",
+        "focus on the story, not the sheets",
+        "less friction and more immersion",
+        "structure for your imagination",
+        "order for complex games",
+        "preparation stop being pain",
+        "infrastructure for tabletop play",
+        "a system for masters and players",
+        "game logic, session control, tools",
+        "tabletop games manageable",
+        "a working toolset for real sessions",
+      ];
+
+      const animator = new TextAnimator(document.getElementById("text"), {
+        messages: phrases,
+      });
+      const rain = new LetterRain(document.body, { color: "var(--color-gold)" });
+
+      document.fonts.ready.then(() => {
+        document.body.classList.add("loaded");
+        animator.start();
+        rain.start();
+      });
+    </script>
+  </body>
+</html>

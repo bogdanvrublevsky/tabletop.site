@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soon...</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Runic&display=swap" />
+    <link rel="stylesheet" href="../css/welcome.css" />
+  </head>
+
+  <body>
+    <h1>Делаем</h1>
+    <h2 id="text">настольные игры проще... или НЕТ?</h2>
+    <div class="copyline">
+      <span>| &copy; 2026 Tabletop Tools</span>
+    </div>
+
+    <script src="../js/welcome.js"></script>
+    <script>
+      const phrases = [
+        "настольные игры проще... или НЕТ?",
+        "всё необходимое за игровым столом",
+        "подготовку быстрее, а ведение проще",
+        "нагрузку на мастера меньше",
+        "так, что правила отходят на второй план, а игра остаётся",
+        "фокус на истории, а не на листах персонажей",
+        "меньше трения и больше погружения",
+        "структуру для воображения",
+        "порядок в сложных играх",
+        "подготовку без боли",
+        "инфраструктуру для настольных игр",
+        "систему для мастеров и игроков",
+        "игровую логику, контроль сессии, инструменты",
+        "настольные игры управляемыми",
+        "рабочий набор инструментов для реальных сессий",
+      ];
+
+      const animator = new TextAnimator(document.getElementById("text"), {
+        messages: phrases,
+      });
+      const rain = new LetterRain(document.body, { color: "var(--color-gold)" });
+
+      document.fonts.ready.then(() => {
+        document.body.classList.add("loaded");
+        animator.start();
+        rain.start();
+      });
+    </script>
+  </body>
+</html>
