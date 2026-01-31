@@ -132,14 +132,91 @@ class TextAnimator {
 }
 
 class CustomSelect {
-  constructor(element) {
-    this.element = element;
-    this.trigger = element.querySelector(".select-trigger");
-    this.dropdown = element.querySelector(".select-dropdown");
-    this.valueDisplay = element.querySelector(".select-value");
-    this.options = element.querySelectorAll(".select-option");
-    this.hiddenSelect = element.querySelector("select");
+  constructor(parent, options = {}) {
+    this.parent = parent;
+    this.options = options.options || [];
+    this.currentValue = options.value || (this.options[0] ? this.options[0].value : "");
+    this.onChange = options.onChange || (() => {});
+
+    this.element = null;
+    this.trigger = null;
+    this.dropdown = null;
+    this.valueDisplay = null;
+    this.optionElements = [];
+    this.hiddenSelect = null;
+
+    this.create();
     this.init();
+  }
+
+  create() {
+    this.element = document.createElement("div");
+    this.element.className = "select-custom";
+
+    const currentOption =
+      this.options.find((opt) => opt.value === this.currentValue) || this.options[0];
+    const currentLabel = currentOption ? currentOption.label : "";
+
+    this.trigger = document.createElement("button");
+    this.trigger.type = "button";
+    this.trigger.className = "select-trigger";
+    this.trigger.setAttribute("aria-expanded", "false");
+
+    this.valueDisplay = document.createElement("span");
+    this.valueDisplay.className = "select-value";
+    this.valueDisplay.textContent = currentLabel;
+
+    const arrow = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    arrow.setAttribute("class", "select-arrow");
+    arrow.setAttribute("width", "12");
+    arrow.setAttribute("height", "8");
+    arrow.setAttribute("viewBox", "0 0 12 8");
+
+    const arrowPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    arrowPath.setAttribute("fill", "currentColor");
+    arrowPath.setAttribute("d", "M6 8L0 2l1.4-1.4L6 5.2 10.6.6 12 2z");
+    arrow.appendChild(arrowPath);
+
+    this.trigger.appendChild(this.valueDisplay);
+    this.trigger.appendChild(arrow);
+
+    this.dropdown = document.createElement("div");
+    this.dropdown.className = "select-dropdown";
+
+    this.options.forEach((opt) => {
+      const optionBtn = document.createElement("button");
+      optionBtn.type = "button";
+      optionBtn.className = "select-option";
+      optionBtn.dataset.value = opt.value;
+      optionBtn.textContent = opt.label;
+
+      if (opt.value === this.currentValue) {
+        optionBtn.classList.add("selected");
+      }
+
+      this.dropdown.appendChild(optionBtn);
+      this.optionElements.push(optionBtn);
+    });
+
+    this.hiddenSelect = document.createElement("select");
+    this.hiddenSelect.name = "language";
+    this.hiddenSelect.style.display = "none";
+
+    this.options.forEach((opt) => {
+      const option = document.createElement("option");
+      option.value = opt.value;
+      option.textContent = opt.label;
+      if (opt.value === this.currentValue) {
+        option.selected = true;
+      }
+      this.hiddenSelect.appendChild(option);
+    });
+
+    this.element.appendChild(this.trigger);
+    this.element.appendChild(this.dropdown);
+    this.element.appendChild(this.hiddenSelect);
+
+    this.parent.appendChild(this.element);
   }
 
   init() {
@@ -148,7 +225,7 @@ class CustomSelect {
       this.toggle();
     });
 
-    this.options.forEach((option) => {
+    this.optionElements.forEach((option) => {
       option.addEventListener("click", (e) => {
         e.stopPropagation();
         this.selectOption(option);
@@ -165,13 +242,6 @@ class CustomSelect {
         this.toggle();
       } else if (e.key === "Escape") {
         this.close();
-      }
-    });
-
-    const selectedValue = this.hiddenSelect.value;
-    this.options.forEach((opt) => {
-      if (opt.dataset.value === selectedValue) {
-        opt.classList.add("selected");
       }
     });
   }
@@ -197,15 +267,13 @@ class CustomSelect {
 
     this.valueDisplay.textContent = text;
     this.hiddenSelect.value = value;
+    this.currentValue = value;
 
-    this.options.forEach((opt) => opt.classList.remove("selected"));
+    this.optionElements.forEach((opt) => opt.classList.remove("selected"));
     option.classList.add("selected");
     this.close();
 
-    if (document.location.pathname.startsWith(`/${value}/`)) return;
-    window.location.href = `/${value}${document.location.href
-      .substring(document.location.origin.length)
-      .substring(3)}`;
+    this.onChange(value);
   }
 }
 
@@ -225,30 +293,26 @@ document.addEventListener("DOMContentLoaded", () => {
       currentLang = pathParts.find((p) => p === "en" || p === "ru") || "en";
     }
 
-    let select = document.createElement("div");
-    select.className = "select-custom";
-    select.innerHTML = `
-          <button type="button" class="select-trigger">
-              <span class="select-value">${languages[currentLang]}</span>
-              <svg class="select-arrow" width="12" height="8" viewBox="0 0 12 8">
-              <path fill="currentColor" d="M6 8L0 2l1.4-1.4L6 5.2 10.6.6 12 2z"/>
-              </svg>
-          </button>
-          <div class="select-dropdown">
-              <button type="button" class="select-option" data-value="en">English</button>
-              <button type="button" class="select-option" data-value="ru">Русский</button>
-          </div>
-          <select name="language" style="display: none;">
-              <option value="en" ${
-                currentLang === "en" ? "selected" : ""
-              }>English</option>
-              <option value="ru" ${
-                currentLang === "ru" ? "selected" : ""
-              }>Русский</option>
-          </select>
-          `;
-    copyline.insertBefore(select, copyline.children[0]);
+    let selectContainer = document.createElement("div");
+    copyline.insertBefore(selectContainer, copyline.children[0]);
 
-    let customSelect = new CustomSelect(select);
+    new CustomSelect(selectContainer, {
+      options: [
+        { value: "en", label: "English" },
+        { value: "ru", label: "Русский" },
+      ],
+      value: currentLang,
+      onChange: (newLang) => {
+        if (newLang === currentLang) return;
+        let pathParts = window.location.pathname.split("/").filter((p) => p);
+        let basePath = "";
+
+        if (pathParts.length > 0 && !languages[pathParts[0]]) {
+          basePath = "/" + pathParts[0];
+        }
+
+        window.location.href = basePath + "/" + newLang + "/";
+      },
+    });
   }
 });
